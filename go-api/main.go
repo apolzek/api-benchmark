@@ -10,16 +10,16 @@ import (
     "strconv"
 
     "github.com/jackc/pgx/v4/pgxpool"
-    "github.com/joho/godotenv"
 )
 
 var pool *pgxpool.Pool
 
 func main() {
-    err := godotenv.Load()
-    if err != nil {
-        log.Fatal("Error loading .env file")
-    }
+    // no need for .env file, env is configured in docker-compose
+    //err := godotenv.Load()
+    //if err != nil {
+    //    log.Fatal("Error loading .env file")
+    //}
 
     connectDB()
     defer pool.Close()
