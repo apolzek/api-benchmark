@@ -11,9 +11,7 @@ const pool = new Pool({
   max: 60,
   idleTimeoutMillis: 0,
   connectionTimeoutMillis: 30000,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl: false,
 });
 
 const createUser = async (email, password) => {
