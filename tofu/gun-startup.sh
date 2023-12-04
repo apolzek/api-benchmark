@@ -5,7 +5,6 @@ sudo apt-get update
 sudo apt-get install -y curl 
 
 # Installing vegeta
-VEGETA_VERSION=
 curl -Lo vegeta.tar.gz "https://github.com/tsenart/vegeta/releases/latest/download/vegeta_$(curl -s "https://api.github.com/repos/tsenart/vegeta/releases/latest" | grep -Po '"tag_name": "v\K[0-9.]+')_linux_amd64.tar.gz"
 
 mkdir vegeta-temp
