@@ -4,7 +4,7 @@
   "description": "Node simple API with only one endpoint that inserts user on Postgres DB",
   "main": "index.js",
   "scripts": {
-    "start": "node --env-file=.env index.mjs"
+    "start": "NODE_ENV=production node --env-file=.env index.mjs"
   },
   "author": "Codista",
   "license": "GPL",

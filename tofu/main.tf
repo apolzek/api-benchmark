@@ -104,10 +104,10 @@ resource "aws_instance" "load_test_api" {
     Name = "load-test-api"
   }
 
-  user_data = file("./ec2-startup.sh")
+  user_data = file("./server-startup.sh")
 
   provisioner "file" {
-    source      = "./go-api"
+    source      = "../go-api"
     destination = "/home/ubuntu"
 
     connection {
@@ -119,19 +119,7 @@ resource "aws_instance" "load_test_api" {
   }
 
   provisioner "file" {
-    source      = "./node-api"
-    destination = "/home/ubuntu"
-
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = file("~/aws/ec2-node-key.pem")
-      host        = self.public_ip
-    }
-  }
-
-  provisioner "file" {
-    source      = "./load-tester"
+    source      = "../node-api"
     destination = "/home/ubuntu"
 
     connection {
@@ -154,10 +142,12 @@ resource "aws_instance" "load_test_gun" {
     Name = "load-test-gun"
   }
 
-  user_data = file("./ec2-startup.sh")
+  user_data = templatefile("./gun-startup.sh", {
+    SERVER_API_IP = aws_instance.load_test_api.public_ip
+  })
 
   provisioner "file" {
-    source      = "./load-tester"
+    source      = "../load-tester"
     destination = "/home/ubuntu"
 
     connection {
@@ -169,13 +159,12 @@ resource "aws_instance" "load_test_gun" {
   }
 }
 
-
-output "server_ip" {
+output "server_api_ip" {
   value = aws_instance.load_test_api.public_ip
-  description = "The public IP address of the EC2 api server."
+  description = "The public IP address of the EC2 api server instance."
 }
 
 output "gun_ip" {
   value = aws_instance.load_test_gun.public_ip
-  description = "The public IP address of the EC2 gun (load test client)."
+  description = "The public IP address of the EC2 gun instance."
 }
