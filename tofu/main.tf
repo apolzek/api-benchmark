@@ -4,6 +4,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
   }
 }
 
@@ -19,6 +24,20 @@ variable "ubuntu-ami" {
 
 provider "aws" {
   region = var.aws_region
+}
+
+resource "tls_private_key" "example" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "generated_key" {
+  key_name   = "ssh_key"
+  public_key = tls_private_key.example.public_key_openssh
+
+  provisioner "local-exec" {
+    command = "echo '${tls_private_key.example.private_key_pem}' > ${path.module}/ssh_key.pem"
+  }
 }
 
 resource "aws_vpc" "load_test_vpc" {
@@ -98,16 +117,73 @@ resource "aws_instance" "load_test_api" {
   instance_type = "t2.micro"
   vpc_security_group_ids = [aws_security_group.load_test_security_group.id]
   subnet_id     = aws_subnet.load_test_subnet.id
-  key_name      = "ec2-node-key"
+  key_name      = aws_key_pair.generated_key.key_name
 
   tags = {
     Name = "load-test-api"
   }
 
-  user_data = file("./ec2-startup.sh")
+  user_data = file("./server-startup.sh")
+
+  provisioner "file" {
+    source      = "../go-api"
+    destination = "/home/ubuntu"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("${path.module}/${aws_key_pair.generated_key.key_name}.pem")
+      host        = self.public_ip
+    }
+  }
+
+  provisioner "file" {
+    source      = "../node-api"
+    destination = "/home/ubuntu"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("${path.module}/${aws_key_pair.generated_key.key_name}.pem")
+      host        = self.public_ip
+    }
+  }
 }
 
-output "ec2_public_ip" {
+resource "aws_instance" "load_test_gun" {
+  ami           = var.ubuntu-ami
+  instance_type = "t2.xlarge"
+  vpc_security_group_ids = [aws_security_group.load_test_security_group.id]
+  subnet_id     = aws_subnet.load_test_subnet.id
+  key_name      = aws_key_pair.generated_key.key_name
+
+  tags = {
+    Name = "load-test-gun"
+  }
+
+  user_data = templatefile("./gun-startup.sh", {
+    SERVER_API_IP = aws_instance.load_test_api.public_ip
+  })
+
+  provisioner "file" {
+    source      = "../load-tester"
+    destination = "/home/ubuntu"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("${path.module}/${aws_key_pair.generated_key.key_name}.pem")
+      host        = self.public_ip
+    }
+  }
+}
+
+output "server_api_ip" {
   value = aws_instance.load_test_api.public_ip
-  description = "The public IP address of the EC2 server instance."
+  description = "The public IP address of the EC2 api server instance."
+}
+
+output "gun_ip" {
+  value = aws_instance.load_test_gun.public_ip
+  description = "The public IP address of the EC2 gun instance."
 }
