@@ -1,5 +1,5 @@
 #!/bin/bash
-echo ${SERVER_API_IP} >> /etc/environment
+echo "SERVER_API_IP=${SERVER_API_IP}" >> /etc/environment
 
 sudo apt-get update
 sudo apt-get install -y curl 

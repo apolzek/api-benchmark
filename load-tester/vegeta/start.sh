@@ -12,6 +12,8 @@ REPORT_FILE="report_$RATE.txt"
 # Set the endpoint to the location of your API
 ENDPOINT="http://$SERVER_API_IP:3000/user"
 
+echo "SERVER IP: $SERVER_API_IP"
+
 
 # Check if Vegeta is installed
 if ! command -v vegeta &> /dev/null
