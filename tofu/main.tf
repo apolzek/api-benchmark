@@ -36,7 +36,19 @@ resource "aws_key_pair" "generated_key" {
   public_key = tls_private_key.example.public_key_openssh
 
   provisioner "local-exec" {
-    command = "echo '${tls_private_key.example.private_key_pem}' > ${path.module}/ssh_key.pem"
+    command = <<EOT
+      echo '${tls_private_key.example.private_key_pem}' > ${path.module}/ssh_key.pem
+      chmod 400 ${path.module}/ssh_key.pem
+    EOT
+  }
+}
+
+resource "null_resource" "ssh_key_cleanup" {
+  depends_on = [aws_key_pair.generated_key]
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "rm -f ${path.module}/ssh_key.pem"
   }
 }
 
