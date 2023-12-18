@@ -33,5 +33,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-# Ignore any .pem file
+# Ignore any .pem fil
 *.pem
+
+ssh-*.sh

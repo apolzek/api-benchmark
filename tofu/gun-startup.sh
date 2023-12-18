@@ -20,7 +20,7 @@ sudo apt-get remove -y nodejs
 sudo apt-get purge -y nodejs
 sudo apt-get autoremove -y
 
-# Install Node.js 21.2.0
+# Install Node.js 21.X.X
 sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/nodesource.gpg
 NODE_MAJOR=21
@@ -29,7 +29,7 @@ sudo apt-get update && sudo apt-get install nodejs -y
 echo "Installed Node!"
 node -v
 
-# Installing Go
+# Installing Go 1.21.4
 wget https://golang.org./dl/go1.21.4.linux-amd64.tar.gz
 sudo tar -C /usr/local -xzf go1.21.4.linux-amd64.tar.gz
 echo 'export PATH=$PATH:/usr/local/go/bin' | sudo tee /etc/profile.d/go_path.sh

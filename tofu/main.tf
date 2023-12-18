@@ -160,6 +160,10 @@ resource "aws_instance" "load_test_api" {
       host        = self.public_ip
     }
   }
+
+  provisioner "local-exec" {
+    command = "echo ssh -i ./ssh_key.pem ubuntu@${self.public_ip} > ssh-connect-api.sh && chmod +x ssh-connect-api.sh"
+  }
 }
 
 resource "aws_instance" "load_test_gun" {
@@ -178,7 +182,7 @@ resource "aws_instance" "load_test_gun" {
   })
 
   provisioner "file" {
-    source      = "../load-tester"
+    source      = "../load-tester/vegeta"
     destination = "/home/ubuntu"
 
     connection {
@@ -187,6 +191,10 @@ resource "aws_instance" "load_test_gun" {
       private_key = file("${path.module}/${aws_key_pair.generated_key.key_name}.pem")
       host        = self.public_ip
     }
+  }
+
+  provisioner "local-exec" {
+    command = "echo ssh -i ./ssh_key.pem ubuntu@${self.public_ip} > ssh-connect-gun.sh && chmod +x ssh-connect-gun.sh"
   }
 }
 
