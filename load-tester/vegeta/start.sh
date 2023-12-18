@@ -5,7 +5,7 @@ if [[ $# -ne 1 ]]; then
 fi
 
 TARGET_FILE="targets.txt"
-DURATION="10s"  # Duration of the test, e.g., 60s for 60 seconds
+DURATION="30s"  # Duration of the test, e.g., 60s for 60 seconds
 RATE=$1    # Number of requests per second
 RESULTS_FILE="results_$RATE.bin"
 REPORT_FILE="report_$RATE.txt"

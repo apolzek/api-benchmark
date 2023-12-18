@@ -48,7 +48,7 @@ resource "null_resource" "ssh_key_cleanup" {
 
   provisioner "local-exec" {
     when    = destroy
-    command = "rm -f ${path.module}/ssh_key.pem"
+    command = "rm -f ${path.module}/ssh_*"
   }
 }
 
@@ -151,7 +151,7 @@ resource "aws_instance" "load_test_api" {
 
   provisioner "file" {
     source      = "../monitor_process.sh"
-    destination = "/home/ubuntu"
+    destination = "/home/ubuntu/monitor_process.sh"
 
     connection {
       type        = "ssh"
@@ -174,7 +174,7 @@ resource "aws_instance" "load_test_api" {
   }
 
   provisioner "local-exec" {
-    command = "echo ssh -i ./ssh_key.pem ubuntu@${self.public_ip} > ssh-connect-api.sh && chmod +x ssh-connect-api.sh"
+    command = "echo ssh -i ./ssh_key.pem ubuntu@${self.public_ip} > ssh_connect-api.sh && chmod +x ssh_connect-api.sh"
   }
 }
 
@@ -206,7 +206,7 @@ resource "aws_instance" "load_test_gun" {
   }
 
   provisioner "local-exec" {
-    command = "echo ssh -i ./ssh_key.pem ubuntu@${self.public_ip} > ssh-connect-gun.sh && chmod +x ssh-connect-gun.sh"
+    command = "echo ssh -i ./ssh_key.pem ubuntu@${self.public_ip} > ssh_connect-gun.sh && chmod +x ssh_connect-gun.sh"
   }
 }
 
