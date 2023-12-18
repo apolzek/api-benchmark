@@ -29,4 +29,15 @@ for i in $(seq 1 $RATE); do
     echo "" >> "$TARGET_FILE"
 done
 
+echo "Starting Vegeta attack for $DURATION at $RATE requests per second..."
 vegeta attack -rate=$RATE -duration=$DURATION -targets="$TARGET_FILE" | tee $RESULTS_FILE | vegeta encode > $METRICS_FILE
+#
+# Generate a textual report from the binary results file
+vegeta report -type=text "$RESULTS_FILE" > "$REPORT_FILE"
+echo "Textual report generated: $REPORT_FILE"
+
+# Jump lines
+echo -e 
+echo -e
+
+cat $REPORT_FILE
