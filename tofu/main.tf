@@ -150,6 +150,18 @@ resource "aws_instance" "load_test_api" {
   }
 
   provisioner "file" {
+    source      = "../monitor_process.sh"
+    destination = "/home/ubuntu"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("${path.module}/${aws_key_pair.generated_key.key_name}.pem")
+      host        = self.public_ip
+    }
+  }
+
+  provisioner "file" {
     source      = "../node-api"
     destination = "/home/ubuntu"
 
