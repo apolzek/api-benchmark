@@ -173,6 +173,21 @@ resource "aws_instance" "load_test_api" {
     }
   }
 
+  provisioner "remote-exec" {
+    inline = [
+      "while [ ! -f /home/ubuntu/ended_startup ]; do sleep 10; done",
+      "chmod +x /home/ubuntu/monitor_process.sh",
+      "cd /home/ubuntu/node-api && npm install",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("${path.module}/${aws_key_pair.generated_key.key_name}.pem")
+      host        = self.public_ip
+    }
+  }
+
   provisioner "local-exec" {
     command = "echo ssh -i ./ssh_key.pem ubuntu@${self.public_ip} > ssh_connect-api.sh && chmod +x ssh_connect-api.sh"
   }
@@ -196,6 +211,20 @@ resource "aws_instance" "load_test_gun" {
   provisioner "file" {
     source      = "../load-tester/vegeta"
     destination = "/home/ubuntu"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("${path.module}/${aws_key_pair.generated_key.key_name}.pem")
+      host        = self.public_ip
+    }
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "while [ ! -f /home/ubuntu/ended_startup ]; do sleep 10; done",
+      "chmod +x /home/ubuntu/vegeta/start.sh",
+    ]
 
     connection {
       type        = "ssh"

@@ -38,3 +38,5 @@ echo "Installed go!"
 # Installing jagger
 go install github.com/rs/jaggr@latest
 go install github.com/rs/jplot@latest
+
+touch /home/ubuntu/ended_startup

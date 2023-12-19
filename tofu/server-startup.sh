@@ -19,3 +19,5 @@ echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.co
 sudo apt-get update && sudo apt-get install nodejs -y
 echo "Installed Node!"
 node -v
+
+touch /home/ubuntu/ended_startup
