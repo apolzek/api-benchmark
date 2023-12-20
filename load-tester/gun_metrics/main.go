@@ -50,12 +50,12 @@ func main() {
 	latencies := make([]int, len(data))
 
 	for i, d := range data {
-			if d.Code >= 200 && d.Code < 300 {
-				successCount++
-			}
-			statusCodeFrequency[d.Code]++
-			latencies[i] = d.Latency
+		if d.Code >= 200 && d.Code < 300 {
+			successCount++
 		}
+		statusCodeFrequency[d.Code]++
+		latencies[i] = d.Latency
+	}
 
 	averageLatency := calculateAverageLatency(latencies)
 	minLatency := calculateMinLatency(latencies)
@@ -69,7 +69,7 @@ func main() {
 	fmt.Printf("Maximum Latency: %.2f ms\n", float64(maxLatency)/1e6)
 	fmt.Printf("p99 Latency: %.2f ms\n", float64(p99Latency)/1e6)
 
-	generateLineChart(latencies, "Latency Over Time", "latency.png")
+	generateLineChart(latencies, "Latency Over Requests", "latency.png")
 	generateBarChart(statusCodeFrequency, "Status Codes Over Time", "status_codes.png")
 }
 
@@ -141,38 +141,55 @@ func generateLineChart(latencies []int, title, filename string) {
 }
 
 func generateBarChart(frequency map[int]int, title, filename string) {
-	p := plot.New()
-	p.Title.Text = title
-	p.X.Label.Text = "Status Code"
-	p.Y.Label.Text = "Count"
+  p := plot.New()
+  p.Title.Text = title
+  p.X.Label.Text = "Status Code"
+  p.Y.Label.Text = "Count"
 
-	var codes []int
-	for code := range frequency {
-		codes = append(codes, code)
-	}
-	sort.Ints(codes)
+  var greenCodes, otherCodes []int
+  var greenCounts, otherCounts plotter.Values
 
-	var counts plotter.Values
-	for _, code := range codes {
-		counts = append(counts, float64(frequency[code]))
-	}
+  for code, count := range frequency {
+    if code >= 200 && code <= 299 {
+      greenCodes = append(greenCodes, code)
+      greenCounts = append(greenCounts, float64(count))
+    } else {
+      otherCodes = append(otherCodes, code)
+      otherCounts = append(otherCounts, float64(count))
+    }
+  }
 
-	bars, err := plotter.NewBarChart(counts, vg.Points(20))
-	if err != nil {
-		log.Fatalf("Failed to create bar chart: %v", err)
-	}
-	bars.Color = color.RGBA{R: 255, A: 255}
-	p.Add(bars)
+  sort.Ints(greenCodes)
+  sort.Ints(otherCodes)
 
-	// Label X-axis with status code strings
-	var codeLabels []string
-	for _, code := range codes {
-		codeLabels = append(codeLabels, fmt.Sprintf("%d", code))
-	}
-	p.NominalX(codeLabels...)
+  if len(greenCounts) > 0 {
+    greenBars, err := plotter.NewBarChart(greenCounts, vg.Points(20))
+    if err != nil {
+    	log.Fatalf("Failed to create green bar chart: %v", err)
+    }
+    greenBars.Color = color.RGBA{R: 0, G: 255, B: 0, A: 255}
+    p.Add(greenBars)
+  }
 
-	if err := p.Save(8*vg.Inch, 4*vg.Inch, filename); err != nil {
-		log.Fatalf("Failed to save chart: %v", err)
-	}
+	if len(otherCounts) > 0 {
+    otherBars, err := plotter.NewBarChart(otherCounts, vg.Points(20))
+    if err != nil {
+    	log.Fatalf("Failed to create other bar chart: %v", err)
+    }
+    otherBars.Color = color.RGBA{R: 255, G: 0, B: 0, A: 255}
+
+    p.Add(otherBars)
+  }
+
+  // Label X-axis with status code strings
+  var codeLabels []string
+  for _, code := range append(greenCodes, otherCodes...) {
+    codeLabels = append(codeLabels, fmt.Sprintf("%d", code))
+  }
+  p.NominalX(codeLabels...)
+
+  if err := p.Save(8*vg.Inch, 4*vg.Inch, filename); err != nil {
+    log.Fatalf("Failed to save chart: %v", err)
+  }
 }
 
