@@ -102,7 +102,7 @@ func averageBySecond(data []Data) map[int64]float64 {
 
 func generateLineChart(goData, nodeData []Data, title string) {
     p := plot.New()
-    p.Title.Text = title + " - Latency over seconds"
+    p.Title.Text = "Latency over seconds"
     p.X.Label.Text = "Seconds elapsed"
     p.Y.Label.Text = "Latency (ms)"
 
