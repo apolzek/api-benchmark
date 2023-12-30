@@ -2,8 +2,75 @@
 
 Simple POST based create-user endpoint inserting into Postgres.
 
-Most of the bottleneck is in the network between the app and postgres handling the inserts.
+## Running on AWS
+### Requirements
+- AWS account
+- AWS CLI (Installed and configured)
+- OpenTofu (or Terraform)
+- Postgres RDS Instance
+  - Create mannualy on AWS
+  - Then run the `tofu/create-db.sql` script on it
+  - Then create a .env file on `node-api` and `go-api` with the DB envs
 
+### How to run
+```
+cd tofu
+tofu apply -auto-approve
+```
+
+This will create all the infraestructure required to spin up two Ubuntu servers (one to host the API, one to host the _gun_).
+After created, it'll generate two files that can be used to connect via ssh to each server.
+
+#### Running the API
+SSH into the api by running 
+```
+./ssh_connect_api.sh
+```
+
+Then, inside the API server:
+
+To start the Node API, run:
+```
+cd node-api
+npm install
+npm start
+```
+
+To start the Go API, run:
+```
+cd go-api
+go build -o api
+./api
+```
+
+Each API will output the **PID** (Process ID), store it somewhere.
+
+##### Monitoring the process
+On a new terminal, reconnect to the API server.
+
+Then, run:
+```
+./monitor_process.sh 2150 2000
+```
+
+If the PID is 2150 and you want to start with the 2,000 requests per second load
+
+#### Running the GUN
+Connect to the gun server by running:
+```
+./ssh_gun_server.sh
+```
+
+Then, to start the test for 2,000 requests per second, run:
+```
+cd load-tester/vegeta
+./metrics.sh 2000
+```
+
+This will run a stress test for 30s with 2,000 requests per second and it'll save some important metrics to a csv file.
+
+
+## Running Locally
 To run the Go version:
 
 ```
