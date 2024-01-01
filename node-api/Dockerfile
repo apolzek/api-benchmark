@@ -1,8 +1,6 @@
-FROM docker.io/node:18.12.1-alpine
+FROM docker.io/node:21.2.0-alpine
 
 COPY . .
 RUN npm ci
 
-RUN npm install -g forever
-
-CMD ["forever", "-f", "no-cluster.mjs"]
+CMD ["node", "index.mjs"]

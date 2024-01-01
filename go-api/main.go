@@ -12,14 +12,21 @@ import (
     "github.com/jackc/pgx/v4/pgxpool"
 )
 
-var pool *pgxpool.Pool
+var (
+    pool *pgxpool.Pool
+    isDev bool
+)
 
 func main() {
+    isDev = os.Getenv("GO_ENV") != "production"
+
     // Delete the following block if you're running locally
     // I'm running on AWS, so I'll need this guy :)
-    err := godotenv.Load()
-    if err != nil {
-        log.Fatal("Error loading .env file")
+    if !isDev {
+        err := godotenv.Load()
+        if err != nil {
+            log.Fatal("Error loading .env file")
+        }
     }
 
     connectDB()
@@ -31,16 +38,20 @@ func main() {
         port = "3000"
     }
 
-    log.Printf("Server running on http://localhost:%s\n", port)
+    log.Printf("Server running on http://0.0.0.0:%s\n", port)
     http.ListenAndServe(":"+port, nil)
 }
 
 func connectDB() {
     var err error
     dbURL := "postgres://" + os.Getenv("POSTGRES_USER") + ":" +
-        os.Getenv("POSTGRES_PASSWORD") + "@" +
-        os.Getenv("POSTGRES_HOST") + "/" +
-        os.Getenv("POSTGRES_DATABASE") //+ "?sslmode=disable"
+    os.Getenv("POSTGRES_PASSWORD") + "@" +
+    os.Getenv("POSTGRES_HOST") + "/" +
+    os.Getenv("POSTGRES_DATABASE") 
+
+    if isDev {
+        dbURL += "?sslmode=disable"
+    }
 
     config, err := pgxpool.ParseConfig(dbURL)
     if err != nil {
@@ -92,8 +103,8 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 func CreateUser(email, password string) (int, error) {
     var id int
     err := pool.QueryRow(context.Background(),
-        "INSERT INTO users(email, password) VALUES($1, $2) RETURNING id",
-        email, password).Scan(&id)
+    "INSERT INTO users(email, password) VALUES($1, $2) RETURNING id",
+    email, password).Scan(&id)
     return id, err
 }
 

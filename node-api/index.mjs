@@ -11,9 +11,12 @@ const pool = new Pool({
   max: 60,
   idleTimeoutMillis: 0,
   connectionTimeoutMillis: 30000,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl:
+    process.env.NODE_ENV === "development"
+      ? false
+      : {
+        rejectUnauthorized: false,
+      },
 });
 
 const createUser = async (email, password) => {
@@ -69,5 +72,5 @@ const PORT = process.env.PORT || 3000;
 
 console.log(`Process PID: ${process.pid}`);
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
