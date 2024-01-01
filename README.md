@@ -1,16 +1,16 @@
 # Go vs Node Experiment Benchmark
-
-Simple POST based create-user endpoint inserting into Postgres.
+Simple POST-based create-user endpoint inserting into Postgres.
 
 ## Running on AWS
 ### Requirements
 - AWS account
-- AWS CLI (Installed and configured)
-- OpenTofu (or Terraform)
+- [AWS CLI](https://aws.amazon.com/cli/) (Installed and configured)
+- [OpenTofu](https://opentofu.org/)
 - Postgres RDS Instance
-  - Create mannualy on AWS
-  - Then run the `tofu/create-db.sql` script on it
-  - Then create a .env file on `node-api` and `go-api` with the DB envs
+  - Create manually on AWS
+  - Run the `tofu/create-db.sql` script on it
+  - Create a .env file on `node-api` and `go-api` (you can copy the .env.example)
+  - Populate the `POSTGRES_` variables
 
 ### How to run
 ```
@@ -18,11 +18,11 @@ cd tofu
 tofu apply -auto-approve
 ```
 
-This will create all the infraestructure required to spin up two Ubuntu servers (one to host the API, one to host the _gun_).
-After created, it'll generate two files that can be used to connect via ssh to each server.
+This will create all the infrastructure required to spin up two Ubuntu servers (one to host the API, one to host the _gun_).
+After created, it'll generate two files that can be used to connect via SSH to each server.
 
 #### Running the API
-SSH into the api by running 
+SSH into the API by running 
 ```
 ./ssh_connect_api.sh
 ```
@@ -43,7 +43,7 @@ go build -o api
 ./api
 ```
 
-Each API will output the **PID** (Process ID), store it somewhere.
+Each API will output the **PID** (Process ID), and store it somewhere.
 
 ##### Monitoring the process
 On a new terminal, reconnect to the API server.
