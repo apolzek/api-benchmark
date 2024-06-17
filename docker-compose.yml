@@ -43,7 +43,7 @@ services:
   gun:
     build: load-tester/vegeta
     environment:
-      SERVER_API_IP: go-api # Switch between node-api/go-api 
+      SERVER_API_IP: node-api # Switch between node-api/go-api 
       RATE: 1000 # How many requests/s
     volumes:
       - ./load-tester/vegeta:/data
